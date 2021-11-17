@@ -1,5 +1,6 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
+const ObjectId = require("mongodb").ObjectId;
 const app = express();
 const cors = require("cors");
 const admin = require("firebase-admin");
@@ -48,13 +49,27 @@ async function run() {
 
       const cursor = appointmentsCollection.find(query);
       const appointments = await cursor.toArray();
+      console.log(appointments);
       res.json(appointments);
+    });
+
+    app.get("/appointment", async (req, res) => {
+      const cursor = appointmentsCollection.find({});
+      const appointments = await cursor.toArray();
+      console.log(appointments);
+      res.send(appointments);
+    });
+
+    app.get("/appointments/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await appointmentsCollection.findOne(query);
+      res.json(result);
     });
 
     app.post("/appointments", async (req, res) => {
       const appointment = req.body;
       const result = await appointmentsCollection.insertOne(appointment);
-      console.log(result);
       res.json(result);
     });
 
@@ -62,6 +77,13 @@ async function run() {
       const cursor = usersCollection.find({});
       const users = await cursor.toArray();
       res.send(users);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.json(result);
     });
 
     app.get("/users/:email", async (req, res) => {
@@ -85,13 +107,13 @@ async function run() {
         const user = req.body;
 
         const filter = { email: user.email };
-        const option = { upsert: true };
+        const options = { upsert: true };
 
         const updateDoc = { $set: user };
         const result = await usersCollection.updateOne(
           filter,
           updateDoc,
-          option
+          options
         );
         res.json(result);
       });
