@@ -41,7 +41,7 @@ async function run() {
     const appointmentsCollection = database.collection("appointments");
     const usersCollection = database.collection("users");
 
-    app.get("/appointment", verifyToken, async (req, res) => {
+    app.get("/appointments", verifyToken, async (req, res) => {
       const email = req.query.email;
       const date = req.query.date;
 
